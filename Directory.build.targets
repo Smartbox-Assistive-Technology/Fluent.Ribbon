@@ -7,10 +7,10 @@
     <Product>Fluent.Ribbon</Product>
     <Copyright>Copyright © 2015 - $([System.DateTime]::Today.ToString(yyyy)) Bastian Schmidt; Copyright © 2009 - 2012 Degtyarev Daniel, Rikker Serg</Copyright>
 
-    <Version Condition="'$(Version)' == ''">8.0.3.2-smartbox</Version>
-    <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">8.0.3.2</AssemblyVersion>
-    <FileVersion Condition="'$(FileVersion)' == ''">8.0.3.2</FileVersion>
-    <InformationalVersion Condition="'$(InformationalVersion)' == ''">8.0.3.2-smartbox</InformationalVersion>
+    <Version Condition="'$(Version)' == '' or '$(Version)' == '1.0.0'">8.0.3.2-smartbox</Version>
+    <AssemblyVersion Condition="'$(AssemblyVersion)' == '' or '$(AssemblyVersion)' == '1.0.0.0'">8.0.3.2</AssemblyVersion>
+    <FileVersion Condition="'$(FileVersion)' == '' or '$(FileVersion)' == '1.0.0.0'">8.0.3.2</FileVersion>
+    <InformationalVersion Condition="'$(InformationalVersion)' == '' or '$(InformationalVersion)' == '1.0.0'">8.0.3.2-smartbox</InformationalVersion>
   </PropertyGroup>
 
   <!-- SourceLink -->
