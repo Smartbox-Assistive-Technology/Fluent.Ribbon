@@ -1,9 +1,9 @@
 ﻿namespace Fluent.Helpers
 {
     using System;
-    using System.Reflection;
     using System.Windows;
     using System.Windows.Input;
+    using System.Windows.Interop;
     using ControlzEx.Native;
     using ControlzEx.Standard;
 
@@ -12,10 +12,6 @@
     /// </summary>
     public static class WindowSteeringHelper
     {
-        private static readonly PropertyInfo criticalHandlePropertyInfo = typeof(Window).GetProperty("CriticalHandle", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        private static readonly object[] emptyObjectArray = new object[0];
-
         /// <summary>
         /// Shows the system menu at the current mouse position.
         /// </summary>
@@ -62,16 +58,22 @@
                 // for the touch usage
                 UnsafeNativeMethods.ReleaseCapture();
 
-                var criticalHandle = (IntPtr)criticalHandlePropertyInfo.GetValue(window, emptyObjectArray);
+                // Avoid private-reflection access to Window.CriticalHandle, which throws NullReferenceException
+                // on .NET 10 because the underlying field is no longer set when the property is read indirectly.
+                // WindowInteropHelper.Handle returns the same HWND for an opened window.
+                var handle = new WindowInteropHelper(window).Handle;
 #pragma warning disable 618
-                // these lines are from DragMove
-                // NativeMethods.SendMessage(criticalHandle, WM.SYSCOMMAND, (IntPtr)SC.MOUSEMOVE, IntPtr.Zero);
-                // NativeMethods.SendMessage(criticalHandle, WM.LBUTTONUP, IntPtr.Zero, IntPtr.Zero);
+                if (handle != IntPtr.Zero)
+                {
+                    // these lines are from DragMove
+                    // NativeMethods.SendMessage(handle, WM.SYSCOMMAND, (IntPtr)SC.MOUSEMOVE, IntPtr.Zero);
+                    // NativeMethods.SendMessage(handle, WM.LBUTTONUP, IntPtr.Zero, IntPtr.Zero);
 
-                var wpfPoint = window.PointToScreen(Mouse.GetPosition(window));
-                var x = (int)wpfPoint.X;
-                var y = (int)wpfPoint.Y;
-                NativeMethods.SendMessage(criticalHandle, WM.NCLBUTTONDOWN, (IntPtr)HT.CAPTION, new IntPtr(x | (y << 16)));
+                    var wpfPoint = window.PointToScreen(Mouse.GetPosition(window));
+                    var x = (int)wpfPoint.X;
+                    var y = (int)wpfPoint.Y;
+                    NativeMethods.SendMessage(handle, WM.NCLBUTTONDOWN, (IntPtr)HT.CAPTION, new IntPtr(x | (y << 16)));
+                }
             }
             else if (handleStateChange
                 && e.ClickCount == 2
